@@ -4,7 +4,9 @@ use std::thread;
 use std::fs;
 use std::time::Duration;
 use filetime::FileTime;
-use log::{error, info};
+use log::{debug, error, info};
+use crate::service::shelly_rest_api;
+use crate::service::shelly_rest_api::save_script_to_shelly;
 
 pub(crate) struct FileChecker {
     last_modified: HashMap<String, FileTime>,
@@ -24,7 +26,7 @@ impl FileChecker {
 
             match result {
                 Err(error) => {
-                    error!("somthing goes wrong when checking the directory -> {}", error);
+                    error!("Somthing goes wrong when processing files in the directory -> {}", error);
                 }
                 _ => {}
             }
@@ -52,8 +54,9 @@ impl FileChecker {
                     None => { self.last_modified.insert(path.to_string(), modif_time); }
                     Some(last_modif_time) => {
                         if &modif_time > last_modif_time {
-                            info!("{} has been modified !", &file_info.path().display());
+                            debug!("{} has been modified !", &file_info.path().display());
                             self.last_modified.insert(path.to_string(), modif_time);
+                            save_script_to_shelly(path)?;
                         }
                     }
                 }

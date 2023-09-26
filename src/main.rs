@@ -11,7 +11,13 @@ struct Args {
     path: String,
 
     #[arg(long, default_value_t = String::from("info"))]
-    log: String
+    log: String,
+
+    #[arg(long, default_value_t = String::from("127.0.0.1"))]
+    host: String,
+
+    #[arg(long, default_value_t = String::from("123456"))]
+    password: String,
 }
 
 fn main() {
@@ -29,10 +35,14 @@ fn main() {
     }
 
     std::env::set_var("RUST_LOG", "shelly_remote_helper");
+    std::env::set_var("shelly-host", &args.host);
+    std::env::set_var("shelly-password", &args.password);
     env_logger::init();
 
-    info!("path: {}", args.path);
-    info!("Shelly Remote Help have correctly started !");
+    info!("Path to check: {}", &args.path);
+    info!("Shelly host ip: {}", &args.host);
+    info!("Shelly password: {}", &args.password);
+    info!("Shelly Remote Helper have correctly started !");
 
-    file_checker::FileChecker::new().start_checking("C:/Users/AGonzalez/Documents")
+    file_checker::FileChecker::new().start_checking(&args.path)
 }
