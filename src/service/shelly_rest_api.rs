@@ -1,25 +1,58 @@
 use std::error::Error;
+use std::ffi::OsStr;
 use std::fmt::{Display, format, Formatter};
 use std::fs::read_to_string;
 use std::io::{BufRead, Read};
+use std::path::Path;
+use std::sync::atomic::Ordering::AcqRel;
 use digest_auth::AuthContext;
 use log::{debug, error, info};
 use reqwest::blocking::{RequestBuilder, Response};
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde::{Deserialize, Serialize};
 use diqwest::blocking::WithDigestAuth;
+use serde_json::json;
 
 pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
-    let mut id: Option<i32> = None;
-
-    let file: String = String::new();
     let file_content = read_to_string(file_path)?;
+    let file_name = Path::new(file_path).file_name()
+        .ok_or(OsStr::new("/"))
+        .unwrap()
+        .to_str()
+        .ok_or("What's the name of this file guys ?")?
+        .replace(".js", "");
+
+    if !file_path.contains(".js") {
+        return Ok(());
+    }
+
+    debug!("file name : {file_name}");
 
     let shelly = Shelly::new()?;
-    let available_scripts = shelly.list()?;
+    let available_scripts = shelly.script_list()?;
     debug!("{:?}", available_scripts);
 
-    shelly.put_code(1, format!("{}", read_to_string(file_path)?), false)?;
+    let script = available_scripts
+        .iter()
+        .filter_map(|script| {
+            if script.name == file_name {
+                Some(script)
+            } else {
+                None
+            }
+        }).next();
+    debug!("{:?}", script);
+
+    if script.is_none() {
+        let new_script = shelly.script_create(&file_name)?;
+        shelly.script_put_code(new_script.id, file_content, false)?;
+
+        info!("The file has been correctly uploaded !");
+
+        return Ok(());
+    }
+
+    shelly.script_put_code(script.unwrap().id, file_content, false)?;
 
     info!("The file has been correctly uploaded !");
 
@@ -30,8 +63,8 @@ pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
 struct Script {
     id: i32,
     name: String,
-    enable: bool,
-    running: bool,
+    enable: Option<bool>,
+    running: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -62,7 +95,42 @@ impl Shelly {
         format!("http://{}{uri}", self.host)
     }
 
-    fn put_code(&self, id: i32, data: String, append: bool) -> Result<(), Box<dyn Error>>{
+    fn script_create(&self, script_name: &str) -> Result<Script, Box<dyn Error>> {
+        let uri = "/rpc/Script.Create";
+        let url = self.get_url(uri);
+
+        let json = format!("{{ \"name\": \"{}\" }}", script_name);
+
+        let response = self.client
+            .post(&url)
+            .header("Content-Length", HeaderValue::from(json.len()))
+            .body(json)
+            .send_with_digest_auth(&self.username, &self.password)?;
+
+        if response.status().is_client_error() {
+            let error_code = response.status().as_u16();
+            let body = response.text()?;
+            error!("{}", &body);
+
+            return Err(Box::new(ClientRequestError { code: error_code }));
+        }
+        else if response.status().is_server_error() {
+            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+        }
+
+        let body = response.text()?;
+        debug!("{body}");
+        let id: serde_json::Value = serde_json::from_str(&body)?;
+
+        Ok(Script {
+            id: id["id"].as_i64().ok_or(-1).unwrap() as i32,
+            name: script_name.to_string(),
+            enable: None,
+            running: None,
+        })
+    }
+
+    fn script_put_code(&self, id: i32, data: String, append: bool) -> Result<(), Box<dyn Error>>{
         let uri = "/rpc/Script.PutCode";
         let url = self.get_url(uri);
         debug!("{}", url);
@@ -91,7 +159,7 @@ impl Shelly {
         Ok(())
     }
 
-    fn list(&self) -> Result<Vec<Script>, Box<dyn Error>> {
+    fn script_list(&self) -> Result<Vec<Script>, Box<dyn Error>> {
         let uri = "/rpc/Script.List";
         let url = self.get_url(uri);
 
