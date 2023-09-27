@@ -4,8 +4,7 @@ use std::thread;
 use std::fs;
 use std::time::Duration;
 use filetime::FileTime;
-use log::{debug, error, info};
-use crate::service::shelly_rest_api;
+use log::{debug, error};
 use crate::service::shelly_rest_api::save_script_to_shelly;
 
 pub(crate) struct FileChecker {

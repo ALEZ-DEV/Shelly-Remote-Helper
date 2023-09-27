@@ -1,5 +1,4 @@
 use std::error::Error;
-use std::fmt::format;
 use std::thread;
 use std::time::Duration;
 use log::{error, info};
@@ -44,7 +43,7 @@ impl Logger {
                 continue;
             }
 
-            let (mut socket, response) = connection?;
+            let (mut socket, _) = connection?;
 
             loop {
                 let msg = socket.read();
@@ -58,7 +57,5 @@ impl Logger {
                 }
             }
         }
-
-        Ok(())
     }
 }

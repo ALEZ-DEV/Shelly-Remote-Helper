@@ -1,17 +1,12 @@
 use std::error::Error;
 use std::ffi::OsStr;
-use std::fmt::{Display, format, Formatter};
+use std::fmt::{Display, Formatter};
 use std::fs::read_to_string;
-use std::io::{BufRead, Read};
 use std::path::Path;
-use std::sync::atomic::Ordering::AcqRel;
-use digest_auth::AuthContext;
 use log::{debug, error, info};
-use reqwest::blocking::{RequestBuilder, Response};
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::header::{HeaderValue};
 use serde::{Deserialize, Serialize};
 use diqwest::blocking::WithDigestAuth;
-use serde_json::json;
 
 pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
     let file_content = read_to_string(file_path)?;

@@ -10,21 +10,27 @@ use crate::logger::Logger;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
+    ///The directory where the utilitary will check for edited file
     #[arg(long, default_value_t = String::from("./"))]
     path: String,
 
-    #[arg(long, default_value_t = String::from("info"))]
+    ///The level of log, often used when developing or debugging the utilitary ('info', 'error', 'debug', 'all')
+    #[arg(long, default_value_t = String::from("error"))]
     log: String,
 
+    ///The IP of the host
     #[arg(long, default_value_t = String::from("127.0.0.1"))]
     host: String,
 
+    ///The port that the websocket will use to get the logs on the Shelly (generaly you don't have to edit this one)
     #[arg(long, default_value_t = 80)]
     ws_port: i32,
 
+    ///The username of the account on the Shelly
     #[arg(long, default_value_t = String::from("admin"))]
     username: String,
 
+    ///The password used to connect to account on the Shelly
     #[arg(long, default_value_t = String::from("123456"))]
     password: String,
 }
@@ -50,7 +56,7 @@ fn main() {
 
     env_logger::init();
 
-    info!("Path to check: {}", &args.path);
+    info!("Path : {}", &args.path);
     info!("Shelly host ip: {}", &args.host);
     info!("Shelly password: {}", &args.password);
     info!("Shelly Remote Helper have correctly started !");
