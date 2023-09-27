@@ -10,33 +10,28 @@ use serde::{Deserialize, Serialize};
 use diqwest::blocking::WithDigestAuth;
 
 pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
-    let mut append = false;
     let mut id: Option<i32> = None;
 
-    let mut file: String = String::new();
+    let file: String = String::new();
+    let file_content = read_to_string(file_path)?;
 
-    for line in read_to_string(file_path)?.lines() {
-        if append == false && id == None {
-            match line.replace("//", "").parse::<i32>() {
-                Err(_) => {
-                    //error!("failed to parse the id of the file, please provide it in the first line of the file. E.G '//3'");
-                    return Err(Box::new(ParseError));
-                }
-                Ok(number) => {
-                    id = Some(number);
-                    debug!("Starting uploading the script {} to the script id {}", file_path, id.unwrap());
-                }
-            }
-        }
+    let shelly = Shelly::new()?;
+    let available_scripts = shelly.list()?;
+    debug!("{:?}", available_scripts);
 
-        append = true;
-    }
-
-    put_chunck(id.ok_or("")?, format!("{}", read_to_string(file_path)?), false)?;
+    shelly.put_code(1, format!("{}", read_to_string(file_path)?), false)?;
 
     info!("The file has been correctly uploaded !");
 
     Ok(())
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Script {
+    id: i32,
+    name: String,
+    enable: bool,
+    running: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -44,66 +39,90 @@ struct Chunk {
     id: i32,
     code: String,
     append: bool,
-    auth: Option<Authorization>,
 }
-#[derive(Serialize, Deserialize)]
-struct Authorization {
-    realm: String,
+
+struct Shelly {
+    client: reqwest::blocking::Client,
+    host: String,
     username: String,
-    nonce: String, //u64
-    cnonce: String, //u64
-    response: String,
-    algorithm: String,
+    password: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct ShellyResponse {
-    id: i32,
-    src: String,
-    dst: String,
-    error: Option<ShellyErrorResponse>,
-}
-#[derive(Serialize, Deserialize)]
-struct ShellyErrorResponse {
-    code: i32,
-    message: String,
-}
-
-fn put_chunck(id: i32, data: String, append: bool) -> Result<(), Box<dyn Error>>{
-    let host = std::env::var("shelly-host")?;
-    let uri = "/rpc/Script.PutCode";
-    let url = format!("http://{host}{uri}");
-    debug!("{}", url);
-
-    let chunk = Chunk {
-        id: id,
-        code: data,
-        append: append,
-        auth: None,
-    };
-    let json = serde_json::to_string(&chunk)?;
-
-    let password = std::env::var("shelly-password")?;
-
-    // let response = send_with_shelly_digest_auth(&url, json, uri, "admin" )?;
-    let client = reqwest::blocking::Client::new();
-    let response = client
-        .post(&url)
-        .header("Content-Length", HeaderValue::from(json.len()))
-        .body(json)
-        .send_with_digest_auth("admin", &password)?;
-
-    //debug!("{:?}", response.text());
-
-    if response.status().is_client_error() {
-        return Err(Box::new(ClientRequestError { code: response.status().as_u16() }));
-    }
-    else if response.status().is_server_error() {
-        return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+impl Shelly {
+    pub fn new() -> Result<Self, Box<dyn Error>>{
+        Ok(Shelly {
+                client: reqwest::blocking::Client::new(),
+                host: std::env::var("shelly-host")?,
+                username: "admin".to_string(),
+                password: std::env::var("shelly-password")?,
+            })
     }
 
-    Ok(())
+    fn get_url(&self, uri: &str) -> String {
+        format!("http://{}{uri}", self.host)
+    }
+
+    fn put_code(&self, id: i32, data: String, append: bool) -> Result<(), Box<dyn Error>>{
+        let uri = "/rpc/Script.PutCode";
+        let url = self.get_url(uri);
+        debug!("{}", url);
+
+        let chunk = Chunk {
+            id: id,
+            code: data,
+            append: append,
+        };
+        let json = serde_json::to_string(&chunk)?;
+
+        let response = self.client
+            .post(&url)
+            .header("Content-Length", HeaderValue::from(json.len()))
+            .body(json)
+            .send_with_digest_auth(&self.username, &self.password)?;
+
+
+        if response.status().is_client_error() {
+            return Err(Box::new(ClientRequestError { code: response.status().as_u16() }));
+        }
+        else if response.status().is_server_error() {
+            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+        }
+
+        Ok(())
+    }
+
+    fn list(&self) -> Result<Vec<Script>, Box<dyn Error>> {
+        let uri = "/rpc/Script.List";
+        let url = self.get_url(uri);
+
+        let response = self.client
+            .get(&url)
+            .send_with_digest_auth(&self.username, &self.password)?;
+
+        if response.status().is_client_error() {
+            return Err(Box::new(ClientRequestError { code: response.status().as_u16() }));
+        }
+        else if response.status().is_server_error() {
+            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+        }
+
+        let body = response.text()?;
+        let data: serde_json::Value = serde_json::from_str(&body)?;
+        if let Some(simple_vec) = data["scripts"].as_array() {
+            let scripts: Vec<Script> = simple_vec
+                .iter()
+                .filter_map(|script| serde_json::from_value(script.clone()).ok())
+                .collect();
+            return Ok(scripts);
+        }
+
+        Err(Box::new(ParseScriptsInfo))
+    }
 }
+
+
+
+
 
 // Error thing
 #[derive(Debug)]
@@ -138,3 +157,14 @@ impl Display for ClientRequestError {
         write!(f, "{msg}")
     }
 }
+
+#[derive(Debug)]
+struct ParseScriptsInfo;
+impl Error for ParseScriptsInfo {}
+impl Display for ParseScriptsInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Unable to parse correctly the list of scripts from the Shelly")
+    }
+}
+
+
