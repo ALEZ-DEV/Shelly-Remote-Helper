@@ -19,7 +19,7 @@ impl FileChecker {
         }
     }
 
-    pub fn start_checking(&mut self, path_to_check: &str) {
+    pub fn start(&mut self, path_to_check: &str) {
 
         loop {
             let result = self.check_directory(path_to_check);

@@ -1,8 +1,11 @@
 mod file_checker;
 mod service;
+mod logger;
 
+use std::thread;
 use clap::Parser;
-use log::info;
+use log::{error, info};
+use crate::logger::Logger;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -15,6 +18,12 @@ struct Args {
 
     #[arg(long, default_value_t = String::from("127.0.0.1"))]
     host: String,
+
+    #[arg(long, default_value_t = 80)]
+    ws_port: i32,
+
+    #[arg(long, default_value_t = String::from("admin"))]
+    username: String,
 
     #[arg(long, default_value_t = String::from("123456"))]
     password: String,
@@ -34,9 +43,11 @@ fn main() {
         }
     }
 
-    std::env::set_var("RUST_LOG", "shelly_remote_helper");
     std::env::set_var("shelly-host", &args.host);
+    std::env::set_var("shelly-port", &args.ws_port.to_string());
+    std::env::set_var("shelly-username", &args.username);
     std::env::set_var("shelly-password", &args.password);
+
     env_logger::init();
 
     info!("Path to check: {}", &args.path);
@@ -44,5 +55,14 @@ fn main() {
     info!("Shelly password: {}", &args.password);
     info!("Shelly Remote Helper have correctly started !");
 
-    file_checker::FileChecker::new().start_checking(&args.path)
+    thread::spawn(move || {
+        let logger = Logger::new();
+        if logger.is_ok() {
+            let error = logger.unwrap().start();
+            error!("Something goes wrong and kill the logger, please restart the app -> {}", error.unwrap_err());
+        } else {
+            error!("Failed to start the logger -> {}", logger.unwrap_err());
+        }
+    });
+    file_checker::FileChecker::new().start(&args.path);
 }

@@ -86,7 +86,7 @@ impl Shelly {
         Ok(Shelly {
                 client: reqwest::blocking::Client::new(),
                 host: std::env::var("shelly-host")?,
-                username: "admin".to_string(),
+                username: std::env::var("shelly-username")?,
                 password: std::env::var("shelly-password")?,
             })
     }
