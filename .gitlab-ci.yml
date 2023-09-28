@@ -7,7 +7,7 @@ build_release:
   variables:
     GIT_STRATEGY: clone
   only:
-    - /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/
+    - /^[0-9]+\.[0-9]+\.[0-9]+$/
     - master
   script: cargo build --release
   artifacts: 
