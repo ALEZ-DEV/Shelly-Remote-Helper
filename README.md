@@ -5,7 +5,8 @@ Il permet aussi de voir les logs du Shelly en temp réel
 
 ## Setup (VS Code)
 ***
-Setup votre environement de travail sur Visual Studio Code (doit être assez similaire dans d'autre éditeur de texte/IDE)
+Setup votre environement de travail sur Visual Studio Code (doit être assez similaire dans d'autre éditeur de texte/IDE)  
+Pour télécharger l'éxecutable, allez sur la [release page](https://gitlab.ptm.net/ptm/utilitaires/Shelly_Remote_Helper/-/releases)
 
 ### tasks.json
 Créer votre **Workspace** ou vous allez créer le le fichier ``./.vscode/tasks.json`` et ajouter cette configuration à celui-ci :
@@ -32,7 +33,7 @@ Créer votre **Workspace** ou vous allez créer le le fichier ``./.vscode/tasks.
 ```
 puis pour activer les ``Tasks`` :
 
-1. Appuyer sur <kbd>CTRL</kdb> + <kbd>SHIFT</kdb> + <kbd>P</kdb> et taper ``> Tasks: Manage Automatic Tasks in Folder``
+1. Appuyer sur ``CTRL `` + ``SHIFT `` + ``P`` et taper ``> Tasks: Manage Automatic Tasks in Folder``
 2. Puis choisisser ``Allow Automatic Tasks in Folder``
 
 Quand vous allez redémarrez la prochaine session dans ce **Workspace**, l'utilitaire démarrera automatiquement
