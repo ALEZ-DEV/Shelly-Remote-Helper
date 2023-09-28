@@ -16,11 +16,9 @@ deploy_release:
   stage: deploy
   needs: ["build_release"]
   only:
-    - master
-  only:
     - tags
-  only:
     - /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+*$/
+    - master
   script:
     - call C:\novellLogin\login.bat
     - md "\\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%"
