@@ -7,9 +7,8 @@ build_release:
   variables:
     GIT_STRATEGY: clone
   only:
-    - master
-  only:
     - tags
+    - master
   script: cargo build --release
 
 deploy_release:
