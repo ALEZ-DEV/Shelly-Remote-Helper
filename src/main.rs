@@ -14,6 +14,10 @@ struct Args {
     #[arg(long, default_value_t = String::from("./"))]
     path: String,
 
+    ///Run the script when is uploaded to the Shelly
+    #[arg(long, default_value_t = true)]
+    autorun: bool,
+
     ///The level of log, often used when developing or debugging the utilitary ('info', 'error', 'debug', 'all')
     #[arg(long, default_value_t = String::from("info"))]
     log: String,
@@ -53,6 +57,7 @@ fn main() {
     std::env::set_var("shelly-port", &args.ws_port.to_string());
     std::env::set_var("shelly-username", &args.username);
     std::env::set_var("shelly-password", &args.password);
+    std::env::set_var("shelly-autorun", &args.autorun.to_string());
 
     env_logger::init();
 

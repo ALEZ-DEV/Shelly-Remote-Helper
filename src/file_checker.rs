@@ -7,7 +7,7 @@ use filetime::FileTime;
 use log::{debug, error};
 use crate::service::shelly_rest_api::save_script_to_shelly;
 
-pub(crate) struct FileChecker {
+pub struct FileChecker {
     last_modified: HashMap<String, FileTime>,
 }
 

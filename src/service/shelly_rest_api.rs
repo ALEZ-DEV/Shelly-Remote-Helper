@@ -40,14 +40,14 @@ pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
 
     if script.is_none() {
         let new_script = shelly.script_create(&file_name)?;
-        shelly.script_put_code(new_script.id, file_content, false)?;
-
-        info!("The file has been correctly uploaded !");
-
-        return Ok(());
+        shelly.script_put_code(&new_script, file_content, false)?;
+        shelly.script_start(&new_script)?;
+    } else {
+        let script_u = script.unwrap();
+        shelly.script_stop(script_u)?;
+        shelly.script_put_code(script_u, file_content, false)?;
+        shelly.script_start(script_u)?;
     }
-
-    shelly.script_put_code(script.unwrap().id, file_content, false)?;
 
     info!("The file has been correctly uploaded !");
 
@@ -121,17 +121,17 @@ impl Shelly {
             id: id["id"].as_i64().ok_or(-1).unwrap() as i32,
             name: script_name.to_string(),
             enable: None,
-            running: None,
+            running: Some(false),
         })
     }
 
-    fn script_put_code(&self, id: i32, data: String, append: bool) -> Result<(), Box<dyn Error>>{
+    fn script_put_code(&self, script: &Script, data: String, append: bool) -> Result<(), Box<dyn Error>>{
         let uri = "/rpc/Script.PutCode";
         let url = self.get_url(uri);
         debug!("{}", url);
 
         let chunk = Chunk {
-            id: id,
+            id: script.id,
             code: data,
             append: append,
         };
@@ -180,6 +180,67 @@ impl Shelly {
         }
 
         Err(Box::new(ParseScriptsInfo))
+    }
+
+    pub fn script_start(&self, script: &Script) -> Result<(), Box<dyn Error>> {
+        let test = std::env::var("shelly-autorun")?.parse::<bool>()?;
+        if script.running.unwrap() && !test {
+            return Ok(());
+        }
+
+        let uri = "/rpc/Script.Start";
+        let url = self.get_url(uri);
+
+        let json = format!("{{ \"id\": \"{}\" }}", script.id);
+
+        let response = self.client
+            .post(&url)
+            .header("Content-Length", HeaderValue::from(json.len()))
+            .body(json)
+            .send_with_digest_auth(&self.username, &self.password)?;
+
+        if response.status().is_client_error() {
+            let error_code = response.status().as_u16();
+            let body = response.text()?;
+            error!("{}", &body);
+
+            return Err(Box::new(ClientRequestError { code: error_code }));
+        }
+        else if response.status().is_server_error() {
+            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+        }
+
+        Ok(())
+    }
+
+    pub fn script_stop(&self, script: &Script) -> Result<(), Box<dyn Error>> {
+        if !script.running.unwrap() {
+            return Ok(());
+        }
+
+        let uri = "/rpc/Script.Stop";
+        let url = self.get_url(uri);
+
+        let json = format!("{{ \"id\": \"{}\" }}", script.id);
+
+        let response = self.client
+            .post(&url)
+            .header("Content-Length", HeaderValue::from(json.len()))
+            .body(json)
+            .send_with_digest_auth(&self.username, &self.password)?;
+
+        if response.status().is_client_error() {
+            let error_code = response.status().as_u16();
+            let body = response.text()?;
+            error!("{}", &body);
+
+            return Err(Box::new(ClientRequestError { code: error_code }));
+        }
+        else if response.status().is_server_error() {
+            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+        }
+
+        Ok(())
     }
 }
 

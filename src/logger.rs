@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::thread;
 use std::time::Duration;
-use log::{debug, error, info, warn};
+use log::{debug, error, info};
 use serde::{Deserialize, Serialize};
 use tungstenite::connect;
 use url::Url;
