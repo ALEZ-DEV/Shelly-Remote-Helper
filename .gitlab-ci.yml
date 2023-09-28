@@ -31,5 +31,5 @@ deploy_release:
     description: 'This is the release of the version %CI_COMMIT_TAG% of Shelly Remote Helper'
     assets:
       links:
-        - name: 'Executable'
+        - name: 'Shelly_Remote_Helper.exe'
           url: 'https://gitlab.ptm.net/api/v4/projects/%CI_PROJECT_ID%/packages/generic/release/%CI_COMMIT_TAG%/Shelly_Remote_Helper.exe'
