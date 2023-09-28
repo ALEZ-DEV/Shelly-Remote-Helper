@@ -8,6 +8,7 @@ build_release:
     GIT_STRATEGY: clone
   only:
     - tags
+    - /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/
     - master
   script: cargo build --release
 
@@ -16,7 +17,7 @@ deploy_release:
   needs: ["build_release"]
   only:
     - tags
-    - /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+*$/
+    - /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/
     - master
   script:
     - call C:\novellLogin\login.bat
