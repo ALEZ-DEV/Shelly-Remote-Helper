@@ -27,7 +27,7 @@ deploy_release:
     - if not exist "\\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%\Shelly_Remote_Helper.exe" xcopy_deploy ".\target\release\Shelly_Remote_Helper.exe" "\\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%" /I /E /Y
     - 'curl --insecure --header "JOB-TOKEN: %CI_JOB_TOKEN%" --upload-file \\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%\Shelly_Remote_Helper.exe "%CI_API_V4_URL%/projects/%CI_PROJECT_ID%/packages/generic/release/%CI_COMMIT_TAG%/Shelly_Remote_Helper.exe"'
   release:
-    name: '%CI_COMMIT_TAG%'
+    tag_name: '%CI_COMMIT_TAG%'
     description: 'This is the release of the version %CI_COMMIT_TAG% of Shelly Remote Helper'
     assets:
       links:
