@@ -15,7 +15,7 @@ struct Args {
     path: String,
 
     ///The level of log, often used when developing or debugging the utilitary ('info', 'error', 'debug', 'all')
-    #[arg(long, default_value_t = String::from("error"))]
+    #[arg(long, default_value_t = String::from("info"))]
     log: String,
 
     ///The IP of the host

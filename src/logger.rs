@@ -46,14 +46,21 @@ impl Logger {
             let (mut socket, _) = connection?;
 
             loop {
-                let msg = socket.read();
-
-                if msg.is_err() {
+                let read_msg = socket.read();
+                if read_msg.is_err() {
                     error!("Failed to read the message");
-                } else {
-                    let log_msg: LogMessage = serde_json::from_str(msg.unwrap().to_text()?)?;
+                }
 
-                    info!("level: {} data: {}",log_msg.level, log_msg.data);
+                let msg = read_msg.unwrap();
+                let text = msg.to_text()?;
+                let log_msg = serde_json::from_str::<LogMessage>(text);
+
+                if log_msg.is_err() {
+                    error!("Failed to deserialize the message");
+                    error!("raw message -> {}", text)
+                } else {
+                    let info_log_msg = log_msg?;
+                    info!("level: {} data: {}",info_log_msg.level, info_log_msg.data);
                 }
             }
         }
