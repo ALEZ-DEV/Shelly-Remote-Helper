@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::thread;
 use std::time::Duration;
-use log::{error, info};
+use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 use tungstenite::connect;
 use url::Url;
@@ -56,11 +56,15 @@ impl Logger {
                 let log_msg = serde_json::from_str::<LogMessage>(text);
 
                 if log_msg.is_err() {
-                    error!("Failed to deserialize the message");
-                    error!("raw message -> {}", text)
+                    debug!("Failed to deserialize the message");
+                    debug!("raw message -> {}", text)
                 } else {
                     let info_log_msg = log_msg?;
-                    info!("level: {} data: {}",info_log_msg.level, info_log_msg.data);
+
+                    match info_log_msg.level {
+                        -1 => info!("{}", info_log_msg.data),
+                        _ => debug!("{}", info_log_msg.data),
+                    }
                 }
             }
         }
