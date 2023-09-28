@@ -25,4 +25,4 @@ deploy_release:
     - call C:\novellLogin\login.bat
     - if not exist "\\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%" md "\\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%"
     - if not exist "\\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%\Shelly_Remote_Helper.exe" xcopy_deploy ".\target\release\Shelly_Remote_Helper.exe" "\\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%" /I /E /Y
-    - 'curl --insecure --header "JOB-TOKEN: %CI_JOB_TOKEN%" --upload-file \\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%\Shelly_Remote_Helper.exe "%CI_API_V4_URL%/projects/%CI_PROJECT_ID%/packages/generic/my_package/%CI_COMMIT_TAG%/Shelly_Remote_Helper.exe"'
+    - 'curl --insecure --header "JOB-TOKEN: %CI_JOB_TOKEN%" --upload-file \\mach17\techdata\Release\ShellyRemoteHelper\%CI_COMMIT_TAG%\Shelly_Remote_Helper.exe "%CI_API_V4_URL%/projects/%CI_PROJECT_ID%/packages/generic/release/%CI_COMMIT_TAG%/Shelly_Remote_Helper.exe"'
