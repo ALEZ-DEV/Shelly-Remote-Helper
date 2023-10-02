@@ -7,4 +7,4 @@ Logger
 - [X] log level 2 = debug
 
 File Saver
-- [ ] indiquer si l'on veut auto run le script
+- [X] indiquer si l'on veut auto run le script
