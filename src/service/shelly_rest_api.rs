@@ -8,6 +8,19 @@ use reqwest::header::{HeaderValue};
 use serde::{Deserialize, Serialize};
 use diqwest::blocking::WithDigestAuth;
 
+static JS_STOP_FUNCTION: &str = "\n
+function stopCurrentScript() {
+    let SCRIPT_ID = Shelly.getCurrentScriptId();
+    let msg = \"script \" + SCRIPT_ID + \" has been stopped\";
+    print(msg);
+    Shelly.call(
+        \"Script.Stop\",
+        { \"id\" : SCRIPT_ID},
+        function (result, error_code, error_message, usedata) {}
+    );
+};
+";
+
 pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
     let file_content = read_to_string(file_path)?;
     let file_name = Path::new(file_path).file_name()
@@ -143,7 +156,7 @@ impl Shelly {
 
         let chunk = Chunk {
             id: script.id,
-            code: data,
+            code: format!("{data}{JS_STOP_FUNCTION}"),
             append: append,
         };
         let json = serde_json::to_string(&chunk)?;
