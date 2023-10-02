@@ -6,7 +6,7 @@ Il permet aussi de voir les logs du Shelly en temp réel
 ## Setup (VS Code)
 ***
 Setup votre environement de travail sur Visual Studio Code (doit être assez similaire dans d'autre éditeur de texte/IDE)  
-Pour télécharger l'éxecutable, allez sur la [release page](https://gitlab.ptm.net/ptm/utilitaires/Shelly_Remote_Helper/-/releases)
+Pour télécharger l'éxecutable, allez sur la [release page](https://gitlab.ptm.net/ptm/utilitaires/Shelly_Remote_Helper/-/releases), puis ajouter le dans votre dossier ./.vscode
 
 ### tasks.json
 Créer votre **Workspace** ou vous allez créer le le fichier ``./.vscode/tasks.json`` et ajouter cette configuration à celui-ci :
