@@ -110,7 +110,18 @@ impl Shelly {
             return Err(Box::new(ClientRequestError { code: error_code }));
         }
         else if response.status().is_server_error() {
-            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+            let id = response.status().as_u16().clone();
+            let msg = response.text();
+
+            let mut checked_msg = None;
+            if msg.is_ok() {
+                checked_msg = Some(msg.unwrap())
+            }
+
+            return Err(Box::new(InternalServerError {
+                code: id,
+                msg: checked_msg,
+            }));
         }
 
         let body = response.text()?;
@@ -148,7 +159,18 @@ impl Shelly {
             return Err(Box::new(ClientRequestError { code: response.status().as_u16() }));
         }
         else if response.status().is_server_error() {
-            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+            let id = response.status().as_u16().clone();
+            let msg = response.text();
+
+            let mut checked_msg = None;
+            if msg.is_ok() {
+                checked_msg = Some(msg.unwrap())
+            }
+
+            return Err(Box::new(InternalServerError {
+                code: id,
+                msg: checked_msg,
+            }));
         }
 
         Ok(())
@@ -166,7 +188,18 @@ impl Shelly {
             return Err(Box::new(ClientRequestError { code: response.status().as_u16() }));
         }
         else if response.status().is_server_error() {
-            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+            let id = response.status().as_u16().clone();
+            let msg = response.text();
+
+            let mut checked_msg = None;
+            if msg.is_ok() {
+                checked_msg = Some(msg.unwrap())
+            }
+
+            return Err(Box::new(InternalServerError {
+                code: id,
+                msg: checked_msg,
+            }));
         }
 
         let body = response.text()?;
@@ -207,7 +240,18 @@ impl Shelly {
             return Err(Box::new(ClientRequestError { code: error_code }));
         }
         else if response.status().is_server_error() {
-            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+            let id = response.status().as_u16().clone();
+            let msg = response.text();
+
+            let mut checked_msg = None;
+            if msg.is_ok() {
+                checked_msg = Some(msg.unwrap())
+            }
+
+            return Err(Box::new(InternalServerError {
+                code: id,
+                msg: checked_msg,
+            }));
         }
 
         Ok(())
@@ -237,7 +281,18 @@ impl Shelly {
             return Err(Box::new(ClientRequestError { code: error_code }));
         }
         else if response.status().is_server_error() {
-            return Err(Box::new(InternalServerError { code: response.status().as_u16() }));
+            let id = response.status().as_u16().clone();
+            let msg = response.text();
+
+            let mut checked_msg = None;
+            if msg.is_ok() {
+                checked_msg = Some(msg.unwrap())
+            }
+
+            return Err(Box::new(InternalServerError {
+                code: id,
+                msg: checked_msg,
+            }));
         }
 
         Ok(())
@@ -261,11 +316,15 @@ impl Display for ParseError {
 #[derive(Debug)]
 struct InternalServerError {
     code: u16,
+    msg: Option<String>,
 }
 impl Error for InternalServerError {}
 impl Display for InternalServerError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let msg = format!("There is something wrong going on with the shelly -> response code {}", self.code);
+        let mut msg = format!("There is something wrong going on with the shelly -> response code {}", self.code);
+        if self.msg.is_some() {
+            msg = format!("{}\nError message -> {}", msg, self.msg.clone().unwrap());
+        }
         write!(f, "{msg}")
     }
 }
