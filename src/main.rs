@@ -7,6 +7,7 @@ use clap::{Parser, Subcommand};
 use log::{error, info};
 use crate::logger::Logger;
 use crate::service::shelly_rest_api::Shelly;
+use crate::service::vscode_tasks::SetupVsCode;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -19,20 +20,21 @@ struct Args {
     log: String,
 
     ///The IP of the host
-    #[arg(long, default_value_t = String::from("127.0.0.1"))]
+    #[arg(long, required = true)]
     host: String,
 
     ///The username of the account on the Shelly
-    #[arg(long, default_value_t = String::from("admin"))]
+    #[arg(long, default_value_t = String::from("info"))]
     username: String,
 
     ///The password used to connect to account on the Shelly
-    #[arg(long, default_value_t = String::from("123456"))]
+    #[arg(long, required = true)]
     password: String,
 }
 
 #[derive(Debug, Subcommand)]
 enum Commands {
+    ///Start the Shelly debugger
     Debug {
         ///The directory where the utilitary will check for edited file
         #[arg(long, default_value_t = String::from("./"))]
@@ -42,15 +44,22 @@ enum Commands {
         #[arg(long, default_value_t = 80)]
         ws_port: i32,
 
-        ///Run the script when is uploaded to the Shelly
+        ///If indicated, directly run the script when is uploaded to the Shelly
         #[arg(short, long)]
         autorun: bool,
     },
 
     ///Run script in the Shelly by the name, if empty, will not be used
     Start {
-        file_name: String,
+        script_name: String,
     },
+
+    ///Setup configuration file for your loved IDE
+    Setup {
+        ///Will create the config for the Visual Studio Code editor "./.vscode/tasks.json" (Will create the file in the current directory)
+        #[arg(long)]
+        vs_code: bool,
+    }
 }
 
 fn main() {
@@ -85,8 +94,37 @@ fn main() {
             autorun,
         } => debug(&path, ws_port, autorun),
         Commands::Start {
-            file_name,
+            script_name: file_name,
         } => start(&file_name),
+        Commands::Setup {
+            vs_code,
+        } => setup(vs_code),
+    }
+}
+
+fn setup(vscode: bool) {
+    if vscode {
+        let result = SetupVsCode::new();
+
+        if result.is_err() {
+            error!("Failed to create the config on initialisation");
+            error!("Due to -> {}", result.unwrap_err());
+            return;
+        }
+
+        let setup_vs_code= result.as_ref().unwrap();
+
+        let write_result = setup_vs_code.write();
+
+        if write_result.is_err() {
+            error!("Failed to write the file");
+            error!("Due to -> {}", result.unwrap_err());
+            return;
+        } else {
+            info!("Config file created, you can now close this console");
+        }
+    } else {
+        error!("You have to choose a config profile to create the config !")
     }
 }
 
@@ -111,7 +149,7 @@ fn debug(path: &str, ws_port: i32, autorun: bool) {
     file_checker::FileChecker::new().start(path);
 }
 
-fn start(file_name: &str) {
+fn start(script_name: &str) {
 
     std::env::set_var("shelly-autorun", true.to_string());
 
@@ -133,7 +171,7 @@ fn start(file_name: &str) {
     let script = script_list
         .iter()
         .filter_map(|script| {
-            if script.name == file_name {
+            if script.name == script_name {
                 Some(script)
             } else {
                 None
