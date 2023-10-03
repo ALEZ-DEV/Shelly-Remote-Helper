@@ -68,9 +68,9 @@ pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Script {
+pub struct Script {
     id: i32,
-    name: String,
+    pub name: String,
     enable: Option<bool>,
     running: Option<bool>,
 }
@@ -82,7 +82,7 @@ struct Chunk {
     append: bool,
 }
 
-struct Shelly {
+pub struct Shelly {
     client: reqwest::blocking::Client,
     host: String,
     username: String,
@@ -189,7 +189,7 @@ impl Shelly {
         Ok(())
     }
 
-    fn script_list(&self) -> Result<Vec<Script>, Box<dyn Error>> {
+    pub fn script_list(&self) -> Result<Vec<Script>, Box<dyn Error>> {
         let uri = "/rpc/Script.List";
         let url = self.get_url(uri);
 
@@ -229,8 +229,8 @@ impl Shelly {
     }
 
     pub fn script_start(&self, script: &Script) -> Result<(), Box<dyn Error>> {
-        let test = std::env::var("shelly-autorun")?.parse::<bool>()?;
-        if script.running.unwrap() && !test {
+        let autorun = std::env::var("shelly-autorun")?.parse::<bool>()?;
+        if script.running.unwrap() && !autorun {
             return Ok(());
         }
 
