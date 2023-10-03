@@ -22,26 +22,26 @@ impl SetupVsCode {
                         Task {
                             label: String::from("Shelly Remote Helper | start Debug"),
                             _type: String::from("shell"),
-                            command: format!("${{workspaceFolder}}/.vscode/Shelly_Remote_Helper.exe --path ${{workspaceFolder}} --host {host} --password {password} --username {username}"),
+                            command: format!("${{workspaceFolder}}/.vscode/Shelly_Remote_Helper.exe --host {host} --password {password} --username {username} debug --path ${{workspaceFolder}}"),
                             group: String::from("none"),
                             presentation: Presentation {
                                 reveal: String::from("always"),
                                 panel: String::from("new"),
                             },
-                            run_option: Some(RunOptions {
+                            run_options: Some(RunOptions {
                                 run_on: String::from("folderOpen"),
                             }),
                         },
                         Task {
                             label: String::from("Shelly Remote Helper | start current Script"),
                             _type: String::from("shell"),
-                            command: format!("${{workspaceFolder}}/.vscode/Shelly_Remote_Helper.exe start ${{fileBasenameNoExtension}} --host {host} --password {password} --username {username}"),
+                            command: format!("${{workspaceFolder}}/.vscode/Shelly_Remote_Helper.exe --host {host} --password {password} --username {username} start ${{fileBasenameNoExtension}}"),
                             group: String::from("none"),
                             presentation: Presentation {
                                 reveal: String::from("always"),
                                 panel: String::from("new"),
                             },
-                            run_option: None,
+                            run_options: None,
                         },
                     ],
                 },
@@ -75,7 +75,7 @@ struct Task {
     group: String,
     presentation: Presentation,
     #[serde(skip_serializing_if = "Option::is_none")]
-    run_option: Option<RunOptions>,
+    run_options: Option<RunOptions>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

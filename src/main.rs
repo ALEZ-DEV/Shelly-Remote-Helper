@@ -24,7 +24,7 @@ struct Args {
     host: String,
 
     ///The username of the account on the Shelly
-    #[arg(long, default_value_t = String::from("info"))]
+    #[arg(long, default_value_t = String::from("admin"))]
     username: String,
 
     ///The password used to connect to account on the Shelly
@@ -49,7 +49,7 @@ enum Commands {
         autorun: bool,
     },
 
-    ///Run script in the Shelly by the name, if empty, will not be used
+    ///Run script in the Shelly by the name
     Start {
         script_name: String,
     },
