@@ -1,4 +1,6 @@
 use log::{error, info};
+use prettytable::{row, Table};
+use colored::Colorize;
 use crate::service::shelly_rest_api::Shelly;
 use crate::service::vscode_tasks::SetupVsCode;
 
@@ -111,4 +113,44 @@ pub fn stop(script_name: &str) {
         error!("Unable to stop script");
         error!("Due to -> {}", stop_result.unwrap_err());
     }
+}
+
+pub fn list() {
+    let result = Shelly::new();
+    if result.is_err() {
+        error!("{:?}", result.unwrap_err());
+        return;
+    }
+
+    let shelly = result.unwrap();
+
+    let list_result = shelly.script_list();
+    if list_result.is_err() {
+        error!("Failed to get the script list from the Shelly");
+        return;
+    }
+
+    let script_list = list_result.unwrap();
+
+    let mut table = Table::new();
+    table.add_row(row!["Id".blue(), "Name".blue(), "Is enable".blue(), "Is running".blue()]);
+
+    script_list.iter().for_each(|script| {
+        let id = script.id.to_string();
+        let name = &script.name;
+        let enable = if script.enable.unwrap() {
+            "Enable".green()
+        } else {
+            "Disable".red()
+        };
+        let running = if script.running.unwrap() {
+            "Running".green()
+        } else {
+            "Idle".red()
+        };
+
+        table.add_row(row![id, name, enable, running]);
+    });
+
+    table.printstd();
 }

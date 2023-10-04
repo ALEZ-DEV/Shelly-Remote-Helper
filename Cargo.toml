@@ -17,3 +17,5 @@ digest_auth = "0.3.1"
 diqwest = { version = "1.2.1", features = ["blocking"] }
 tungstenite = "0.20.1"
 url = "2.4.1"
+colored = "2.0.4"
+prettytable-rs = "0.10.0"

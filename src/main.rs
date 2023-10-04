@@ -36,6 +36,13 @@ struct Args {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
+    ///Setup configuration file for your loved IDE
+    Setup {
+        ///Will create the config for the Visual Studio Code editor "./.vscode/tasks.json" (Will create the file in the current directory)
+        #[arg(long)]
+        vs_code: bool,
+    },
+
     ///Start the Shelly debugger
     Debug {
         ///The directory where the utilitary will check for edited file
@@ -61,12 +68,8 @@ enum Commands {
         script_name: String,
     },
 
-    ///Setup configuration file for your loved IDE
-    Setup {
-        ///Will create the config for the Visual Studio Code editor "./.vscode/tasks.json" (Will create the file in the current directory)
-        #[arg(long)]
-        vs_code: bool,
-    },
+    ///Show the available script on the Shelly
+    List {}
 }
 
 fn main() {
@@ -109,6 +112,7 @@ fn main() {
         Commands::Setup {
             vs_code,
         } => action::setup(vs_code),
+        Commands::List {} => action::list(),
     }
 }
 

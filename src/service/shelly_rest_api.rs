@@ -69,10 +69,10 @@ pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Script {
-    id: i32,
+    pub id: i32,
     pub name: String,
-    enable: Option<bool>,
-    running: Option<bool>,
+    pub enable: Option<bool>,
+    pub running: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize)]
