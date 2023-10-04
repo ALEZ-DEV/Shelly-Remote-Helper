@@ -34,7 +34,7 @@ pub fn start(script_name: &str) {
 
     let result = Shelly::new();
     if result.is_err() {
-        error!("oh my... how it can be wrong ? go check main.rs line 96 to 99");
+        error!("{:?}", result.unwrap_err());
         return;
     }
 
@@ -69,5 +69,46 @@ pub fn start(script_name: &str) {
     } else {
         error!("Unable to start script");
         error!("Due to -> {}", start_result.unwrap_err())
+    }
+}
+
+pub fn stop(script_name: &str) {
+    let result = Shelly::new();
+    if result.is_err() {
+        error!("{:?}", result.unwrap_err());
+        return;
+    }
+
+    let shelly = result.unwrap();
+
+    let list_result = shelly.script_list();
+    if list_result.is_err() {
+        error!("Failed to get the script list from the Shelly");
+        return;
+    }
+
+    let script_list = list_result.unwrap();
+    let script = script_list
+        .iter()
+        .filter_map(|script| {
+            if script.name == script_name {
+                Some(script)
+            } else {
+                None
+            }
+        }).next();
+
+    if script.is_none() {
+        error!("can't stop the script, because is not existent");
+        return;
+    }
+
+    let stop_result = shelly.script_stop(script.unwrap());
+
+    if stop_result.is_ok() {
+        info!("script has been stopped !")
+    } else {
+        error!("Unable to stop script");
+        error!("Due to -> {}", stop_result.unwrap_err());
     }
 }

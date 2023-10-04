@@ -82,6 +82,7 @@ struct Chunk {
     append: bool,
 }
 
+#[derive(Debug)]
 pub struct Shelly {
     client: reqwest::blocking::Client,
     host: String,
