@@ -8,16 +8,26 @@ Il permet aussi de voir les logs du Shelly en temp réel
 Setup votre environement de travail sur Visual Studio Code (doit être assez similaire dans d'autre éditeur de texte/IDE)  
 Pour télécharger l'éxecutable, allez sur la [release page](https://gitlab.ptm.net/ptm/utilitaires/Shelly_Remote_Helper/-/releases), puis ajouter le dans votre dossier `./.vscode`
 
+### Setup automatique
+
 L'utilitaire va setup automatiquement le tasks.json pour vous, lancer votre projet Shelly, puis allez dans la ligne de commande de vs code et lancer ses deux commande
 ```shell
 cd .\.vscode
 .\Shelly_Remote_Helper.exe .\Shelly_Remote_Helper.exe --host <IP du Shelly> --password <mot de passe> setup --vs-code
 ```
+
+puis pour activer les ``Tasks`` :
+
+1. Appuyer sur ``CTRL `` + ``SHIFT `` + ``P`` et taper ``> Tasks: Manage Automatic Tasks in Folder``
+2. Puis choisisser ``Allow Automatic Tasks in Folder``
+
+Quand vous allez redémarrez la prochaine session dans ce **Workspace**, l'utilitaire démarrera automatiquement
+
 puis relancer votre vs code et l'utilitaire se lancera tout seul
 
 si vous voulez quand même le configurer vous même, suiver les étapes suivantes
 
-### tasks.json
+### Setup manuel (tasks.json)
 Créer votre **Workspace** ou vous allez créer le le fichier ``./.vscode/tasks.json`` et ajouter cette configuration à celui-ci :
 
 ```
@@ -45,12 +55,24 @@ puis pour activer les ``Tasks`` :
 1. Appuyer sur ``CTRL `` + ``SHIFT `` + ``P`` et taper ``> Tasks: Manage Automatic Tasks in Folder``
 2. Puis choisisser ``Allow Automatic Tasks in Folder``
 
+Quand vous allez redémarrez la prochaine session dans ce **Workspace**, l'utilitaire démarrera automatiquement
+
 ## Fonction Utile (Marche uniquement si utiliser avec l'utilitaire)
 ***
 `stopCurrentScript()`
 si vous appeler cette fonction dans votre code, le script qui s'éxecutera sera automatiquement arréter
 
-Quand vous allez redémarrez la prochaine session dans ce **Workspace**, l'utilitaire démarrera automatiquement
+```
+Shelly.call(
+    "Shelly.SomeFunction",
+    {},
+    function (result, userdata) {
+        print(result);
+        // execution d'autre code
+        stopCurrentScript();
+    },
+);
+```
 
 ## Commandes
 ***
@@ -78,7 +100,7 @@ valeur par défaut: ``info``
 ``help``  
 Affiche toute les comandes disponibles avec leurs description  
 
-***
+#### Debug
 
 ``debug``  
 Démarre le débuggeur de l'utilitaire pour le Shelly
@@ -91,13 +113,13 @@ peut être: ``chemin d'accèes``
 Le port que le websocket utilisera pour récupérer les Logs du Shelly  (généralement vous n'avez pas besoin de modifier ce paramètre)
 valeur par défaut: ``80``
 
-***
+#### Start
 
 ``start``  
 Démarre un script dans le Shelly par son nom
 peut être: ``nom du script``
 
-***
+#### Setup
 
 ``setup``  
 Setup la configuration requise pour utiliser l'utilitaire dans vs code (d'autre peuvent être ajout sous demande)  
