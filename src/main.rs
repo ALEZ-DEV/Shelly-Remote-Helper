@@ -4,12 +4,8 @@ mod logger;
 mod debugger;
 mod action;
 
-use std::thread;
 use clap::{Parser, Subcommand};
-use log::{error, info};
-use crate::logger::Logger;
-use crate::service::shelly_rest_api::Shelly;
-use crate::service::vscode_tasks::SetupVsCode;
+use log::info;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
