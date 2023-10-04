@@ -44,6 +44,18 @@ impl SetupVsCode {
                             problem_matcher: Some(vec![]),
                         },
                         Task {
+                            label: String::from("Shelly Remote Helper | list available script"),
+                            _type: String::from("shell"),
+                            command: format!("${{workspaceFolder}}/.vscode/Shelly_Remote_Helper.exe --host {host} --password {password} --username {username} list"),
+                            group: String::from("none"),
+                            presentation: Presentation {
+                                reveal: String::from("always"),
+                                panel: String::from("new"),
+                            },
+                            run_options: None,
+                            problem_matcher: Some(vec![]),
+                        },
+                        Task {
                             label: String::from("Shelly Remote Helper | start Debug"),
                             _type: String::from("shell"),
                             command: format!("${{workspaceFolder}}/.vscode/Shelly_Remote_Helper.exe --host {host} --password {password} --username {username} debug --path ${{workspaceFolder}}"),
