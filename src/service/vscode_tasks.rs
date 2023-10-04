@@ -31,6 +31,7 @@ impl SetupVsCode {
                             run_options: Some(RunOptions {
                                 run_on: String::from("folderOpen"),
                             }),
+                            problem_matcher: None,
                         },
                         Task {
                             label: String::from("Shelly Remote Helper | start current Script"),
@@ -42,6 +43,7 @@ impl SetupVsCode {
                                 panel: String::from("new"),
                             },
                             run_options: None,
+                            problem_matcher: Some(vec![]),
                         },
                     ],
                 },
@@ -76,6 +78,8 @@ struct Task {
     presentation: Presentation,
     #[serde(skip_serializing_if = "Option::is_none")]
     run_options: Option<RunOptions>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    problem_matcher: Option<Vec<String>>
 }
 
 #[derive(Debug, Serialize, Deserialize)]

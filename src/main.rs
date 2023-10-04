@@ -1,6 +1,8 @@
 mod file_checker;
 mod service;
 mod logger;
+mod debugger;
+mod action;
 
 use std::thread;
 use clap::{Parser, Subcommand};
@@ -92,103 +94,15 @@ fn main() {
             path,
             ws_port,
             autorun,
-        } => debug(&path, ws_port, autorun),
+        } => debugger::debug(&path, ws_port, autorun),
         Commands::Start {
             script_name: file_name,
-        } => start(&file_name),
+        } => action::start(&file_name),
         Commands::Setup {
             vs_code,
-        } => setup(vs_code),
+        } => action::setup(vs_code),
     }
 }
 
-fn setup(vscode: bool) {
-    if vscode {
-        let result = SetupVsCode::new();
 
-        if result.is_err() {
-            error!("Failed to create the config on initialisation");
-            error!("Due to -> {}", result.unwrap_err());
-            return;
-        }
 
-        let setup_vs_code= result.as_ref().unwrap();
-
-        let write_result = setup_vs_code.write();
-
-        if write_result.is_err() {
-            error!("Failed to write the file");
-            error!("Due to -> {}", result.unwrap_err());
-            return;
-        } else {
-            info!("Config file created, you can now close this console");
-        }
-    } else {
-        error!("You have to choose a config profile to create the config !")
-    }
-}
-
-fn debug(path: &str, ws_port: i32, autorun: bool) {
-
-    std::env::set_var("shelly-port", ws_port.to_string());
-    std::env::set_var("shelly-autorun", autorun.to_string());
-
-    info!("Path : {}", path);
-    info!("WS Port : {}", ws_port);
-    info!("Autorun : {}", autorun);
-
-    thread::spawn(move || {
-        let logger = Logger::new();
-        if logger.is_ok() {
-            let error = logger.unwrap().start();
-            error!("Something goes wrong and kill the logger, please restart the app -> {}", error.unwrap_err());
-        } else {
-            error!("Failed to start the logger -> {}", logger.unwrap_err());
-        }
-    });
-    file_checker::FileChecker::new().start(path);
-}
-
-fn start(script_name: &str) {
-
-    std::env::set_var("shelly-autorun", true.to_string());
-
-    let result = Shelly::new();
-    if result.is_err() {
-        error!("oh my... how it can be wrong ? go check main.rs line 96 to 99");
-        return;
-    }
-
-    let shelly = result.unwrap();
-
-    let list_result = shelly.script_list();
-    if list_result.is_err() {
-        error!("Failed to get the script list from the Shelly");
-        return;
-    }
-
-    let script_list = list_result.unwrap();
-    let script = script_list
-        .iter()
-        .filter_map(|script| {
-            if script.name == script_name {
-                Some(script)
-            } else {
-                None
-            }
-        }).next();
-
-    if script.is_none() {
-        error!("can't start the script, because is not existent");
-        return;
-    }
-
-    let start_result = shelly.script_start(script.unwrap());
-
-    if start_result.is_ok() {
-        info!("script started !");
-    } else {
-        error!("Unable to start script");
-        error!("Due to -> {}", start_result.unwrap_err())
-    }
-}
