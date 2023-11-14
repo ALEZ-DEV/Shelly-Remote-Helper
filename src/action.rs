@@ -4,6 +4,7 @@ use colored::Colorize;
 use crate::service::shelly_rest_api::Shelly;
 use crate::service::vscode_tasks::SetupVsCode;
 
+///To create the configuration file under ./vscode
 pub fn setup(vscode: bool) {
     if vscode {
         let result = SetupVsCode::new();
@@ -30,6 +31,7 @@ pub fn setup(vscode: bool) {
     }
 }
 
+///Start script by it's name on the Shelly
 pub fn start(script_name: &str) {
 
     std::env::set_var("shelly-autorun", true.to_string());
@@ -74,6 +76,7 @@ pub fn start(script_name: &str) {
     }
 }
 
+///Stop script by it's name on the Shelly
 pub fn stop(script_name: &str) {
     let result = Shelly::new();
     if result.is_err() {
@@ -115,6 +118,7 @@ pub fn stop(script_name: &str) {
     }
 }
 
+///Print the list of all scipts on the Shelly with their current status
 pub fn list() {
     let result = Shelly::new();
     if result.is_err() {

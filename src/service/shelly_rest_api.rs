@@ -8,6 +8,9 @@ use reqwest::header::{HeaderValue};
 use serde::{Deserialize, Serialize};
 use diqwest::blocking::WithDigestAuth;
 
+///JavaScript function that can be called in the js code to stop the current file
+///
+/// This code is automatically append to an end of a file
 static JS_STOP_FUNCTION: &str = "\n
 function stopCurrentScript() {
     let SCRIPT_ID = Shelly.getCurrentScriptId();
@@ -21,6 +24,9 @@ function stopCurrentScript() {
 };
 ";
 
+///Upload and save file to the Shelly by the file path
+///
+/// * `save_script_to_shelly` - the path of the file to upload to the shelly
 pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
     let file_content = read_to_string(file_path)?;
     let file_name = Path::new(file_path).file_name()
@@ -67,30 +73,47 @@ pub fn save_script_to_shelly(file_path: &str) -> Result<(), Box<dyn Error>>{
     Ok(())
 }
 
+///Representation of a script on the Shelly
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Script {
+    ///The current id of the script on the Shelly
     pub id: i32,
+    ///The current name of the script on the Shelly
     pub name: String,
+    ///The status if the script is currently enable or not on the Shelly, can be [None]
     pub enable: Option<bool>,
+    ///The status if the script is currently running or not on the Shelly can be [None]
     pub running: Option<bool>,
 }
 
+///A chunk is a part of the code that will be send to the Shelly
 #[derive(Serialize, Deserialize)]
 struct Chunk {
+    ///The script where the [Chunk] have to be send
     id: i32,
+    ///The code that will be send to the Shelly
     code: String,
+    ///If [true] will append the code to the existing one, if [false] will override it
     append: bool,
 }
 
+///Define the Shelly structure and data, can create an instance of it with [Shelly::new()]
 #[derive(Debug)]
 pub struct Shelly {
+    ///The Http client who will communicate with the Shelly
     client: reqwest::blocking::Client,
+    ///The IP of the Shelly
     host: String,
+    ///The username to be able to connect to the Shelly
     username: String,
+    ///The password to be able to connect to the Shelly
     password: String,
 }
 
 impl Shelly {
+    ///Create a new instance of Shelly
+    ///
+    /// Return an error if something goes wrong
     pub fn new() -> Result<Self, Box<dyn Error>>{
         Ok(Shelly {
                 client: reqwest::blocking::Client::new(),
@@ -100,10 +123,18 @@ impl Shelly {
             })
     }
 
+    ///Generate the url to access the Shelly API
     fn get_url(&self, uri: &str) -> String {
         format!("http://{}{uri}", self.host)
     }
 
+    ///Create and upload the script to the shelly
+    ///
+    /// * `script_name` - The name of the script that will be upload
+    ///
+    ///Equivalent to http://{shelly_ip}/rpc/Script.Create
+    ///
+    ///Return an error if something goes wrong
     fn script_create(&self, script_name: &str) -> Result<Script, Box<dyn Error>> {
         let uri = "/rpc/Script.Create";
         let url = self.get_url(uri);
@@ -150,6 +181,15 @@ impl Shelly {
         })
     }
 
+    ///Will override all the code in the indicate Script
+    ///
+    /// * `script` - The script to send the code
+    /// * `data` - The code that will be upload to the Shelly
+    /// * `append` - If [true] append the code at the end of the file, If [false] will override all existing code
+    ///
+    ///Equivalent to http://{shelly_ip}/rpc/Script.PutCode
+    ///
+    /// Return an Error if something goes wrong
     fn script_put_code(&self, script: &Script, data: String, append: bool) -> Result<(), Box<dyn Error>>{
         let uri = "/rpc/Script.PutCode";
         let url = self.get_url(uri);
@@ -190,6 +230,9 @@ impl Shelly {
         Ok(())
     }
 
+    ///Will return a list of the currents `Vec<Script>` with their current status
+    ///
+    ///Return an Error if something goes wrong
     pub fn script_list(&self) -> Result<Vec<Script>, Box<dyn Error>> {
         let uri = "/rpc/Script.List";
         let url = self.get_url(uri);
@@ -229,6 +272,11 @@ impl Shelly {
         Err(Box::new(ParseScriptsInfo))
     }
 
+    ///Will start a script with the current name on the Shelly
+    ///
+    ///  * `script` - The [Script] to start
+    ///
+    ///Return an Error if something goes wrong
     pub fn script_start(&self, script: &Script) -> Result<(), Box<dyn Error>> {
         let autorun = std::env::var("shelly-autorun")?.parse::<bool>()?;
         if script.running.unwrap() && !autorun {
@@ -271,6 +319,11 @@ impl Shelly {
         Ok(())
     }
 
+    ///Will stop a script with the current name on  the shelly
+    ///
+    /// * `script` - the [Script] that will be stop
+    ///
+    ///Return an Error if something goes wrong
     pub fn script_stop(&self, script: &Script) -> Result<(), Box<dyn Error>> {
         if !script.running.unwrap() {
             return Ok(());

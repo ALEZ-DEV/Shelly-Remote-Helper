@@ -7,17 +7,22 @@ use filetime::FileTime;
 use log::{debug, error};
 use crate::service::shelly_rest_api::save_script_to_shelly;
 
+///The File checker will check every 0.5 seconds have been created or updated
 pub struct FileChecker {
     last_modified: HashMap<String, FileTime>,
 }
 
 impl FileChecker {
+    ///Create a new instance of [FileChecker]
     pub fn new() -> Self {
         FileChecker {
             last_modified: HashMap::new(),
         }
     }
 
+    ///Start the [FileChecker]
+    ///
+    /// * `path_to_check` - The path where the [FileChecker] will check if some file has been created or updated
     pub fn start(&mut self, path_to_check: &str) {
 
         loop {
@@ -34,6 +39,9 @@ impl FileChecker {
         }
     }
 
+    ///Check if any file has been created or updated
+    ///
+    /// * `directory_to_check` - The path where the [FileChecker] will check if some file has been created or updated
     fn check_directory(&mut self, directory_to_check: &str) -> Result<(), Box<dyn Error>>{
 
         let files_path = fs::read_dir(directory_to_check)?;

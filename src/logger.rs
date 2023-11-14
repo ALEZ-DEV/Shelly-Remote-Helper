@@ -6,19 +6,25 @@ use serde::{Deserialize, Serialize};
 use tungstenite::connect;
 use url::Url;
 
+///The Logger data
 #[derive(Debug)]
 pub struct Logger {
+    ///The IP of the Shelly
     host: String,
+    ///The websocket port
     port: i32,
 }
 
+///Representation of a message from the websocket
 #[derive(Serialize, Deserialize)]
 struct LogMessage {
     ts: f64,
     level: i64,
     data: String,
 }
+
 impl Logger {
+    ///Create a new instance of the Logger
     pub fn new() -> Result<Self, Box<dyn Error>>{
         Ok(Self {
             host: std::env::var("shelly-host")?,
@@ -26,6 +32,7 @@ impl Logger {
         })
     }
 
+    ///Start the logger and will try to connect to the shelly
     pub fn start(&self) -> Result<(), Box<dyn Error>>{
         let url = format!("ws://{}:{}/debug/log", self.host, self.port);
         let mut retry_time = 0;

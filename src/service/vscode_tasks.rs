@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::Write;
 use serde::{Deserialize, Serialize};
 
+///The vscode configuration
 #[derive(Debug)]
 pub struct SetupVsCode {
     tasks: Tasks,
@@ -84,6 +85,7 @@ impl SetupVsCode {
     }
 }
 
+///Representation of an array Task in VSCode
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Tasks {
@@ -91,6 +93,7 @@ struct Tasks {
     tasks: Vec<Task>,
 }
 
+///Representation of a Task in VSCode
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Task {

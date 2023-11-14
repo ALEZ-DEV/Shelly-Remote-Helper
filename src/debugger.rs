@@ -3,6 +3,11 @@ use log::{error, info};
 use crate::file_checker;
 use crate::logger::Logger;
 
+///When called will start logging from the websocket
+///
+/// * `path` - the path of the directory that will be check for update
+/// * `ws_port` - the websocket port
+/// * `autorun` - the autorun parameter
 pub fn debug(path: &str, ws_port: i32, autorun: bool) {
 
     std::env::set_var("shelly-port", ws_port.to_string());
@@ -12,6 +17,7 @@ pub fn debug(path: &str, ws_port: i32, autorun: bool) {
     info!("WS Port : {}", ws_port);
     info!("Autorun : {}", autorun);
 
+    ///[thread::spawn()] create a new thread and move it, like this it can be independent
     thread::spawn(move || {
         let logger = Logger::new();
         if logger.is_ok() {

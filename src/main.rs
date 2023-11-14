@@ -92,7 +92,6 @@ fn main() {
     info!("Shelly password: {}", &args.password);
     info!("Shelly Remote Helper have correctly started !");
 
-
     match args.command {
         Commands::Debug {
             path,
