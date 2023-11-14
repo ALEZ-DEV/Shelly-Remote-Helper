@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["shelly_rest_api","vscode_tasks"]};
