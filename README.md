@@ -3,8 +3,33 @@
 Cette utilitaire permet de upload les fichiers javascripts que vous modifier directement au Shelly que vous voulez
 Il permet aussi de voir les logs du Shelly en temp réel
 
+## Compilation
+
+### Pré-requis
+Vous avez besoin de rust installer, si vous ne l'avez pas installer le avec [Rustup](https://www.rust-lang.org/tools/install)
+
+Puis choissisez l'installation complère, cela va vous installer [Cargo](https://github.com/rust-lang/cargo), le gestionnaire de paquet pour rust
+
+Une fois rust installer, vous pouvez lancez ses commandes
+
+### Compilation
+
+Cloner le projet dans le répértoir de votre choix
+```bash
+git clone https://gitlab.ptm.net/ptm/utilitaires/Shelly_Remote_Helper.git
+```
+
+Changer de répértoir de travail
+```bash
+cd Shelly_Remote_helper
+```
+
+Compilé et lancer le projet
+```bash
+cargo run
+```
+
 ## Setup (VS Code)
-***
 Setup votre environement de travail sur Visual Studio Code (doit être assez similaire dans d'autre éditeur de texte/IDE)  
 Pour télécharger l'éxecutable, allez sur la [release page](https://gitlab.ptm.net/ptm/utilitaires/Shelly_Remote_Helper/-/releases), puis ajouter le dans votre dossier `./.vscode`
 
@@ -58,7 +83,6 @@ puis pour activer les ``Tasks`` :
 Quand vous allez redémarrez la prochaine session dans ce **Workspace**, l'utilitaire démarrera automatiquement
 
 ## Fonction Utile (Marche uniquement si utiliser avec l'utilitaire)
-***
 `stopCurrentScript()`
 si vous appeler cette fonction dans votre code, le script qui s'éxecutera sera automatiquement arréter
 
@@ -75,7 +99,6 @@ Shelly.call(
 ```
 
 ## Commandes
-***
 Voici toute les commandes disponibles  
 
 #### Paramètre Globale
