@@ -1,61 +1,60 @@
 # Shelly-Remote-Helper
 ***
-Cette utilitaire permet de upload les fichiers javascripts que vous modifier directement au Shelly que vous voulez
-Il permet aussi de voir les logs du Shelly en temp réel
+This utilitary can upload JS files that you are editing on your local machine to your shelly and get logs via websocket, all in realtime
 
 ## Compilation
 
-### Pré-requis
-Vous avez besoin de rust installer, si vous ne l'avez pas installer le avec [Rustup](https://www.rust-lang.org/tools/install)
+### Require
+To use it, you need to install Rust, if is not already installed, you can install it with [Rustup](https://www.rust-lang.org/tools/install)
 
-Puis choissisez l'installation complère, cela va vous installer [Cargo](https://github.com/rust-lang/cargo), le gestionnaire de paquet pour rust
+Then choose the complete installation, this will install [Cargo](https://github.com/rust-lang/cargo), the packet manager of Rust
 
-Une fois rust installer, vous pouvez lancez ses commandes
+One time this is installed, you can go to the next section
 
 ### Compilation
 
-Cloner le projet dans le répértoir de votre choix
+Clone the project in any directory
 ```bash
-git clone https://gitlab.ptm.net/ptm/utilitaires/Shelly_Remote_Helper.git
+git clone https://github.com/ALEZ-DEV/Shelly-Remote-Helper.git
 ```
 
-Changer de répértoir de travail
+Change workspace
 ```bash
-cd Shelly_Remote_helper
+cd Shelly-Remote-helper
 ```
 
-Compilé et lancer le projet
+Compile and Run the project
 ```bash
 cargo run
 ```
 
 ## Setup (VS Code)
-Setup votre environement de travail sur Visual Studio Code (doit être assez similaire dans d'autre éditeur de texte/IDE)  
-Pour télécharger l'éxecutable, allez sur la [release page](https://gitlab.ptm.net/ptm/utilitaires/Shelly_Remote_Helper/-/releases), puis ajouter le dans votre dossier `./.vscode`
+Setup your workspace on Visual Studio Code (the setup process have to be similare in other text editor/IDE)  
+To download it, you can simply go to the [release page](https://github.com/ALEZ-DEV/Shelly-Remote-Helper/releases) of this repo, then add it to your `./.vscode` directory on your VS code project
 
 ### Setup automatique
 
-L'utilitaire va setup automatiquement le tasks.json pour vous, lancer votre projet Shelly, puis allez dans la ligne de commande de vs code et lancer ses deux commande
+The utilitary will setup automatically the task.json for you, start the project where your shelly script is, then in the cmd of VS code start this two command
 ```shell
 cd .\.vscode
-.\Shelly_Remote_Helper.exe .\Shelly_Remote_Helper.exe --host <IP du Shelly> --password <mot de passe> setup --vs-code
+.\Shelly_Remote_Helper.exe --host <IP du Shelly> --password <mot de passe> setup --vs-code
 ```
 
-puis pour activer les ``Tasks`` :
+then for enable the ``Tasks`` :
 
-1. Appuyer sur ``CTRL `` + ``SHIFT `` + ``P`` et taper ``> Tasks: Manage Automatic Tasks in Folder``
-2. Puis choisisser ``Allow Automatic Tasks in Folder``
+1. Press on ``CTRL`` + ``SHIFT`` + ``P`` and type ``> Tasks: Manage Automatic Tasks in Folder``
+2. Then choose ``Allow Automcatic Tasks in Folder``
 
-Quand vous allez redémarrez la prochaine session dans ce **Workspace**, l'utilitaire démarrera automatiquement
+When you restart your next session of this **Workspace**, the utilitary will auto start
 
-puis relancer votre vs code et l'utilitaire se lancera tout seul
+then restart your VS code and will run automatically
 
-si vous voulez quand même le configurer vous même, suiver les étapes suivantes
+if you want anyway to configure it manually, follow these steps
 
-### Setup manuel (tasks.json)
-Créer votre **Workspace** ou vous allez créer le le fichier ``./.vscode/tasks.json`` et ajouter cette configuration à celui-ci :
+### Setup manually (tasks.json)
+Create your **Workspace** where you will create the file ``./.vscode/tasks.json`` and add this configuration to it :
 
-```
+```json
 {
     "version": "2.0.0",
     "tasks": [
@@ -75,86 +74,78 @@ Créer votre **Workspace** ou vous allez créer le le fichier ``./.vscode/tasks.
     ]
 }
 ```
-puis pour activer les ``Tasks`` :
+then for enable the ``Tasks`` :
 
-1. Appuyer sur ``CTRL `` + ``SHIFT `` + ``P`` et taper ``> Tasks: Manage Automatic Tasks in Folder``
-2. Puis choisisser ``Allow Automatic Tasks in Folder``
+1. Press on ``CTRL`` + ``SHIFT`` + ``P`` and type ``> Tasks: Manage Automatic Tasks in Folder``
+2. Then choose ``Allow Automcatic Tasks in Folder``
 
-Quand vous allez redémarrez la prochaine session dans ce **Workspace**, l'utilitaire démarrera automatiquement
+When you restart your next session of this **Workspace**, the utilitary will auto start
 
-## Fonction Utile (Marche uniquement si utiliser avec l'utilitaire)
+## Utile Function (Only work if you use the utilitary)
 `stopCurrentScript()`
-si vous appeler cette fonction dans votre code, le script qui s'éxecutera sera automatiquement arréter
+if you call this function in your code, the executed script will stop itself
 
-```
+```javascript
 Shelly.call(
     "Shelly.SomeFunction",
     {},
     function (result, userdata) {
         print(result);
-        // execution d'autre code
+        // execute other code
         stopCurrentScript();
     },
 );
 ```
 
-## Commandes
-Voici toute les commandes disponibles  
+## Commands
+There is all the available commands
 
-#### Paramètre Globale
+#### Global parameter
 
 ``--host``  
-L'IP du Shelly, l'utilitaire l'utilisera pour s'y connecter  
-Obligatoire
+IP of the Shelly, the utilitary will use it to connect to it
+Mandatory*
 
 ``--username``  
-Le nom d'utiliserateur que l'utilitaire utilisera pour se connecter au Shelly  
-valeur par défaut: ``admin``
+The usename of the user in the Shelly, the utilitary will use it to connect to it
+default value: ``admin``
 
 ``--password``  
-Le mot de passe qui va être utiliser pour se connecter au Shelly  
-Obligatoire
+The password that will be used to connecect to the Shelly
+Mandatory*
 
 ``--log``  
-Le niveau de Log, souvent utiliser pendant le développement et le débuggage de l'utilitaire  
-peut être: ``info``, ``error``, ``debug``, ``all``  
-valeur par défaut: ``info``
+The level log, often usedwhile in development and to debug the utilitary
+can be: ``info``, ``error``, ``debug``, ``all``  
+Default value: ``info``
 
 ``help``  
-Affiche toute les comandes disponibles avec leurs description  
+Display all the available commands with their description
 
 #### Debug
 
 ``debug``  
-Démarre le débuggeur de l'utilitaire pour le Shelly
+Start the remote debugger for the shelly
 
 ``--path``  
-Le dossier ou l'utilitaire va vérifier pour les fichiers éditier (à upload au  Shelly)  
-peut être: ``chemin d'accèes``
+The directory where the utilitary will check edited files (to upload to the Shelly)
+can be: ``path/to/the/directory/to/check``
 
 ``--ws-port``  
-Le port que le websocket utilisera pour récupérer les Logs du Shelly  (généralement vous n'avez pas besoin de modifier ce paramètre)
-valeur par défaut: ``80``
+The port which the webscoket will use to get the logs from the Shelly (generally, you don't have to edit this parameter
+Default value: ``80``
 
 #### Start
 
 ``start``  
-Démarre un script dans le Shelly par son nom
-peut être: ``nom du script``
+Start one script in the Shelly by it's name
+can be: ``nom du script``
 
 #### Setup
 
 ``setup``  
-Setup la configuration requise pour utiliser l'utilitaire dans vs code (d'autre peuvent être ajout sous demande)  
-Obligatoire de spécifier un des arguments suivant
+Setup the configuration to use the utilitary in VS code (other configuration can be added on demand or merge request)
+Mandatory to specify the one of the next argument 
 
 ``--vs-code``  
-Va créer la configuration pour vs code
-
-
-
-
-
-
-
-
+Will create the configuration for VS code
